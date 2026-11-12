@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Misprint</title>
+<meta name="description" content="A breakout game printed in three inks.">
+<meta name="theme-color" content="#F3EEE4">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' fill='%23F3EEE4'/%3E%3Ccircle cx='29' cy='30' r='17' fill='%231C6BC7'/%3E%3Ccircle cx='35' cy='34' r='17' fill='%23FF4F8B' style='mix-blend-mode:multiply'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Alfa+Slab+One&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<canvas id="game" aria-label="Misprint game"></canvas>
+
+<div id="ui">
+
+  <!-- ============ TITLE ============ -->
+  <section class="screen" id="s-title">
+    <nav class="title-menu" id="title-menu">
+      <button class="mi mi-primary" data-act="start" data-ink="pink"><span class="mi-num">01</span><span class="mi-label">Print</span></button>
+      <button class="mi" data-act="howto" data-ink="blue"><span class="mi-num">02</span><span class="mi-label">How to play</span></button>
+      <button class="mi" data-act="settings" data-ink="yellow"><span class="mi-num">03</span><span class="mi-label">Settings</span></button>
+    </nav>
+    <div class="title-best" id="title-best"></div>
+  </section>
+
+  <!-- ============ HOW TO PLAY ============ -->
+  <section class="screen sheet" id="s-howto">
+    <div class="sheet-inner">
+      <header class="sheet-head">
+        <h2 class="misreg" data-text="How to play">How to play</h2>
+        <button class="back" data-act="back">Back</button>
+      </header>
+      <ol class="rules">
+        <li>
+          <canvas class="rule-art" data-art="roll" width="240" height="150"></canvas>
+          <h3><span>01</span>Roll</h3>
+          <p>Steer the roller with the mouse, <kbd>←</kbd> <kbd>→</kbd> or <kbd>A</kbd> <kbd>D</kbd>. Click or <kbd>Space</kbd> serves the ball &mdash; it heads the way you&rsquo;re moving.</p>
+        </li>
+        <li>
+          <canvas class="rule-art" data-art="smash" width="240" height="150"></canvas>
+          <h3><span>02</span>Smash</h3>
+          <p>Click again right as the ball meets the roller. A smashed ball punches through layers, and through black blocks.</p>
+        </li>
+        <li>
+          <canvas class="rule-art" data-art="bleed" width="240" height="150"></canvas>
+          <h3><span>03</span>Bleed</h3>
+          <p>The ball soaks up the colour it peels. Hit that colour again and the ink bleeds: the whole connected patch peels at once.</p>
+        </li>
+        <li>
+          <canvas class="rule-art" data-art="clear" width="240" height="150"></canvas>
+          <h3><span>04</span>Clear the plate</h3>
+          <p>Peel every coloured layer, then pick a technique. Rarer ones turn up as the run goes on, and many pair up with each other. Three bosses stand between you and the finished edition.</p>
+        </li>
+      </ol>
+      <p class="sheet-foot"><kbd>P</kbd> pause &nbsp;·&nbsp; <kbd>M</kbd> mute</p>
+    </div>
+  </section>
+
+  <!-- ============ SETTINGS ============ -->
+  <section class="screen sheet" id="s-settings">
+    <div class="sheet-inner sheet-narrow">
+      <header class="sheet-head">
+        <h2 class="misreg" data-text="Settings">Settings</h2>
+        <button class="back" data-act="back">Back</button>
+      </header>
+      <div class="opts">
+        <button class="opt" data-opt="sfx"><span class="opt-name">Sound effects</span><span class="opt-val"></span></button>
+        <button class="opt" data-opt="music"><span class="opt-name">Music</span><span class="opt-val"></span></button>
+        <button class="opt" data-opt="shake"><span class="opt-name">Plate shake</span><span class="opt-val"></span></button>
+        <button class="opt" data-opt="patterns"><span class="opt-name">Ink patterns <small>for colour-blind play</small></span><span class="opt-val"></span></button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ PERK PICK ============ -->
+  <section class="screen sheet" id="s-perk">
+    <div class="perk-wrap">
+      <figure class="proof">
+        <canvas id="proof-cv"></canvas>
+        <figcaption id="proof-cap"></figcaption>
+      </figure>
+      <div class="perk-side">
+        <p class="perk-kicker" id="perk-kicker"></p>
+        <h2 class="perk-title">Pick a technique</h2>
+        <div class="tickets" id="tickets"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ PAUSE ============ -->
+  <section class="screen wash" id="s-pause">
+    <div class="pause-box">
+      <h2 class="misreg" data-text="Paused">Paused</h2>
+      <nav class="stack-menu">
+        <button class="mi" data-act="resume" data-ink="pink"><span class="mi-label">Resume</span></button>
+        <button class="mi" data-act="settings" data-ink="yellow"><span class="mi-label">Settings</span></button>
+        <button class="mi" data-act="restart" data-ink="blue"><span class="mi-label">New run</span></button>
+        <button class="mi" data-act="quit" data-ink="blue"><span class="mi-label">Quit to title</span></button>
+      </nav>
+      <div class="owned" id="owned"></div>
+    </div>
+  </section>
+
+  <!-- ============ GAME OVER / VICTORY ============ -->
+  <section class="screen sheet" id="s-over">
+    <div class="sheet-inner">
+      <h2 class="over-title misreg" id="over-title" data-text="Out of ink">Out of ink</h2>
+      <dl class="over-stats" id="over-stats"></dl>
+      <div class="prints" id="prints"></div>
+      <nav class="row-menu">
+        <button class="mi" data-act="retry" data-ink="yellow" id="retry-btn"><span class="mi-label">Retry act</span></button>
+        <button class="mi" data-act="restart" data-ink="pink"><span class="mi-label">New run</span></button>
+        <button class="mi" data-act="save" data-ink="yellow"><span class="mi-label">Save the prints</span></button>
+        <button class="mi" data-act="quit" data-ink="blue"><span class="mi-label">Title</span></button>
+      </nav>
+    </div>
+  </section>
+
+</div>
+
+<canvas id="grain" aria-hidden="true"></canvas>
+<canvas id="wipe" aria-hidden="true"></canvas>
+
+<script src="js/core.js"></script>
+<script src="js/audio.js"></script>
+<script src="js/render.js"></script>
+<script src="js/levels.js"></script>
+<script src="js/world.js"></script>
+<script src="js/bosses.js"></script>
+<script src="js/techniques.js"></script>
+<script src="js/game.js"></script>
+<script src="js/title.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>
